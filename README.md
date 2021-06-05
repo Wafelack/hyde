@@ -40,7 +40,6 @@ Compile a Hyde variant into a String.
 * `List (List Hyde) Bool`: An HTML list and order/unerdered marker (True if ordered).
 * `Link (List Hyde) String`: A link with its URL and content.
 * `Img String`: An image with its path.
-* `Text String`: Raw text.
 
 License
 -------

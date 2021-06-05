@@ -5,8 +5,7 @@
     (Paragraph content)
     (List elems ordered)
     (Link alt dest)
-    (Img src)
-    (Text content))
+    (Img src))
 
 (def hyde:new (λ (title)
     (Page title "" Nil "")))
@@ -26,14 +25,15 @@
 (def hyde:compile (λ (element) {
     (def hyde:compile_multi (λ (elements)
         (foldl "" (\ (body el) (format "{}\n{}" (, body (hyde:compile el)))) elements)))
-    (match element
-        ((Text content) content)
-        ((Section title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
-        ((Subsection title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
-        ((Paragraph content) (format "<p>{}</p>" (, (hyde:compile_multi content))))
-        ((Img src) (format "<img src={} >" (, src)))
-        ((Link alt dest) (format "<a href={} >{} </a>" (, dest (hyde:compile alt))))
-        ((List elems ordered) (format
+    (if (= (type element) "String")
+        element
+        (match element
+            ((Section title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
+            ((Subsection title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
+            ((Paragraph content) (format "<p>{}</p>" (, (hyde:compile_multi content))))
+            ((Img src) (format "<img src={} >" (, src)))
+            ((Link alt dest) (format "<a href={} >{} </a>" (, dest (hyde:compile alt))))
+            ((List elems ordered) (format
 "<{}>
 {}
 </{}>"
@@ -42,7 +42,7 @@
             (\ (body el) (format "{}\n\t<li>{}</li>" (, body (hyde:compile el))))
             elems)
         (if ordered "ol" "ul"))))
-        ((Page title css body footer) (format
+            ((Page title css body footer) (format
 "<!DOCTYPE html>
 <html>
     <head>
@@ -58,4 +58,4 @@
     </body>
     <footer><hr>{}</footer>
 </html>" (, title css title (hyde:compile_multi body) footer))))
-                       }))
+                       )}))
