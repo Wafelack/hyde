@@ -1,0 +1,2 @@
+*.orn linguist-language=clojure
+*.orn diff=clojure
