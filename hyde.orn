@@ -1,0 +1,61 @@
+(enum Hyde
+    (Page title css body footer)
+    (Section title content)
+    (Subsection title content)
+    (Paragraph content)
+    (List elems ordered)
+    (Link alt dest)
+    (Img src)
+    (Text content))
+
+(def hyde:new (λ (title)
+    (Page title "" Nil "")))
+(def hyde:set_css (λ (page css)
+    (match page
+        ((Page title _ body footer) (Page title css body footer))
+        (_ (panic "Not a Page.")))))
+(def hyde:set_footer (λ (page footer)
+    (match page
+        ((Page title css body _) (Page title css body footer))
+        (_ (panic "Not a Page.")))))
+(def hyde:add_elem (λ (page elem)
+    (match page
+        ((Page title css body footer) (Page title css (push body elem) footer))
+        (_ (panic "Not a Page.")))))
+
+(def hyde:compile (λ (element) {
+    (def hyde:compile_multi (λ (elements)
+        (foldl "" (\ (body el) (format "{}\n{}" (, body (hyde:compile el)))) elements)))
+    (match element
+        ((Text content) content)
+        ((Section title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
+        ((Subsection title content) (format "<h2>{}</h2>\n{}" (, title (hyde:compile_multi content))))
+        ((Paragraph content) (format "<p>{}</p>" (, (hyde:compile_multi content))))
+        ((Img src) (format "<img src={} >" (, src)))
+        ((Link alt dest) (format "<a href={} >{} </a>" (, dest (hyde:compile alt))))
+        ((List elems ordered) (format
+"<{}>
+{}
+</{}>"
+        (, (if ordered "ol" "ul") 
+        (foldl "" 
+            (\ (body el) (format "{}\n\t<li>{}</li>" (, body (hyde:compile el))))
+            elems)
+        (if ordered "ol" "ul"))))
+        ((Page title css body footer) (format
+"<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset=utf8 >
+        <meta name=viewport content=width=device-width,initial-scale=1.0 />
+        <title>{}</title>
+        <link rel=stylesheet type=text/css href={} >
+    </head>
+    <body>
+        <h1>{}</h1>
+        <hr>
+        {}
+    </body>
+    <footer><hr>{}</footer>
+</html>" (, title css title (hyde:compile_multi body) footer))))
+                       }))

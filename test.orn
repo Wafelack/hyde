@@ -1,0 +1,11 @@
+#!/usr/bin/orion
+(load "hyde.orn")
+
+(def 'impure main
+    (λ () {
+        (def page (hyde:new "Test"))
+        (def page (hyde:set_css page "master.css"))
+        (def page (hyde:add_elem page
+                    (Paragraph (Cons
+                        (Text "This is a test page.") Nil))))
+        (putStrLn (hyde:compile page))}))
